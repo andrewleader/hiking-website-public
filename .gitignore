@@ -1,8 +1,14 @@
+# Build
+build
+
+# Dependencies
 node_modules
-npm-debug.log
-v8.log
-dist
-src/**/*.js
-src/**/*.map
-tests/**/*.js
-tests/**/*.map
+yarn.lock
+package-lock.json
+
+# Editor files
+.idea
+.vscode
+
+# Miscellaneous
+.DS_Store

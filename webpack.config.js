@@ -1,68 +1,44 @@
-//@ts-check
-/** @typedef {import('webpack').Configuration} WebpackConfig **/
-const nodeExternals = require('webpack-node-externals');
+const webpack = require("webpack");
+const path = require("path");
+const nodeExternals = require("webpack-node-externals");
 
-
-/** @type WebpackConfig[] */
-const configs = [
-    {
-        entry: {
-            browser: './src/browser.tsx',
-        },
-        output: {
-            path: __dirname + '/dist',
-            filename: '[name].js',
-        },
-        // Currently we need to add '.ts' to the resolve.extensions array.
-        resolve: {
-            extensions: ['.ts', '.tsx', '.js', '.jsx'],
-        },
-
-        // Source maps support ('inline-source-map' also works)
-        devtool: 'source-map',
-
-        // Add the loader for .ts files.
-        module: {
-            rules: [
-                {
-                    test: /\.tsx?$/,
-                    loader: 'ts-loader',
-                },
-            ],
-        },
-        externals: {
-            react: 'React',
-            'react-dom': 'ReactDOM',
-        },
+var config = {
+    mode: "development",
+    plugins: [new webpack.HotModuleReplacementPlugin()],
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: "ts-loader",
+                exclude: /node_modules/
+            }
+        ]
     },
-    {
-        entry: {
-            server: './src/server.ts',
-        },
-        output: {
-            path: __dirname + '/dist',
-            filename: '[name].js',
-        },
-        // Currently we need to add '.ts' to the resolve.extensions array.
-        resolve: {
-            extensions: ['.ts', '.tsx', '.js', '.jsx'],
-        },
+    resolve: {
+        extensions: [".tsx", ".ts", ".js"],
+        modules: ["src", "node_modules"]
+    }
+};
 
-        // Source maps support ('inline-source-map' also works)
-        devtool: 'source-map',
+var client = Object.assign({}, config, {
+    name: "client",
+    target: "web",
+    entry: path.resolve(__dirname, "src/client/index.tsx"),
+    output: {
+        filename: "bundle.js",
+        path: path.resolve(__dirname, "build")
+    }
+});
 
-        // Add the loader for .ts files.
-        module: {
-            rules: [
-                {
-                    test: /\.tsx?$/,
-                    loader: 'ts-loader',
-                },
-            ],
-        },
-        target: 'node',
-        externals: [nodeExternals()],
-    },
-];
+var server = Object.assign({}, config, {
+    name: "server",
+    target: "node",
+    externals: [nodeExternals()],
+    entry: path.resolve(__dirname, "src/server/index.tsx"),
+    output: {
+        filename: "server.js",
+        path: path.resolve(__dirname, "build")
+    }
+});
 
-module.exports = configs;
+module.exports = [client, server];
